@@ -120,12 +120,28 @@ static int pages_view_open(struct inode *inode, struct file *file)
 	return ret;
 }
 
+static int pages_view_release(struct inode *inode, struct file *file)
+{
+	struct seq_file *s = file->private_data;
+	struct list_head *head = s->private;
+	struct page_entry *entry;
+	struct page_entry *tmp;
+
+	list_for_each_entry_safe(entry, tmp, head, list) {
+		list_del(&entry->list);
+		kfree(entry);
+	}
+	kfree(head);
+
+	return seq_release(inode, file);
+}
+
 static const struct file_operations pages_view_fops = {
 	.owner   = THIS_MODULE,
 	.open    = pages_view_open,
 	.read    = seq_read,
 	.llseek  = seq_lseek,
-	.release = seq_release,
+	.release = pages_view_release,
 };
 
 static int __init pages_view_init(void)
