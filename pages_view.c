@@ -77,13 +77,13 @@ static void pages_view_seq_stop(struct seq_file *s, void *v)
 static int pages_view_seq_show(struct seq_file *s, void *v)
 {
 	struct page_entry *entry = list_entry(v, struct page_entry, list);
-	unsigned int *page_data_start;
-	unsigned int *page_data;
+	unsigned int *data_start;
+	unsigned int *data;
 
-	page_data_start = page_data = kmap(entry->page);
+	data_start = data = kmap(entry->page);
 
-	for (; page_data < page_data_start + PAGE_SIZE; ++page_data)
-		seq_printf(s, "%08x", *page_data);
+	for (; data < data_start + PAGE_SIZE / sizeof(*data); ++data)
+		seq_printf(s, "%08x", *data);
 
 	kunmap(entry->page);
 
